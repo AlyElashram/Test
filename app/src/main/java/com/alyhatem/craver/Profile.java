@@ -25,9 +25,13 @@ public class Profile extends AppCompatActivity {
         Authenticator=FirebaseAuth.getInstance();
         users_Ref= FirebaseDatabase.getInstance().getReference("Users");
         Name_txt=findViewById(R.id.Name_txt);
+        Name_txt.setHint("Name:");
         Age_txt=findViewById(R.id.Age_txt);
+        Age_txt.setHint("Age:");
         Freq_txt=findViewById(R.id.Frequency_txt);
+        Freq_txt.setHint("How many times do you order a week");
         Fav_txt=findViewById(R.id.Fav_txt);
+        Fav_txt.setHint("Favourite Restaurant");
         RegisterProfile_btn=findViewById(R.id.SetProfile_btn);
         RegisterProfile_btn.setOnClickListener(new View.OnClickListener() {
             @Override
