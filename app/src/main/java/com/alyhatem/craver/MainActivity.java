@@ -1,4 +1,4 @@
-package com.alyhatem.craver;
+ package com.alyhatem.craver;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         Email_txt.setHint("Email To sign in or Sign up");
         Password_txt.setHint("Password");
         ConfirmPassword_txt = findViewById(R.id.ConfirmPassword_txt);
+        ConfirmPassword_txt.setHint("Confirm Password for \n sign up only");
         SignInEmail_btn = findViewById(R.id.SignInEmail_btn);
         SignInGuest_btn = findViewById(R.id.SignInGuest_btn);
         SignUpEmail_btn = findViewById(R.id.SignUpEmail_btn);
@@ -49,9 +50,8 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    //To profile...
                                     //add Loading screen
-                                    startActivity(new Intent());
+                                    startActivity(new Intent(MainActivity.this,Profile.class));
                                 } else {
                                     Toast.makeText(MainActivity.this, "Email or Password Incorrect", Toast.LENGTH_SHORT).show();
                                 }
@@ -83,9 +83,9 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isComplete()) {
-                                    //To Profile
+                                    startActivity(new Intent(MainActivity.this,Profile.class));
                                     //Add Loading Screen
-                                    Toast.makeText(MainActivity.this, "Complete", Toast.LENGTH_LONG).show();
+
                                 } else {
                                     Toast.makeText(MainActivity.this, task.getResult().toString(), Toast.LENGTH_SHORT).show();
                                 }
@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Authenticator.signInAnonymously();
+                    // startActivity(new Intent(MainActivity.this,));
                     //To Second Activity not profile
                 }
             });
