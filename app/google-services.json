@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "116631516958",
+    "firebase_url": "https://craver-8bd54.firebaseio.com",
+    "project_id": "craver-8bd54",
+    "storage_bucket": "craver-8bd54.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:116631516958:android:ef218bb7eb48975c703b0f",
+        "android_client_info": {
+          "package_name": "com.alyhatem.craver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "116631516958-92e2q2a5feujoaoiu8u89jkej3ibgs8m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByAkuCdfIaEdsjWv5sS7H8N6D30NVaPRQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "116631516958-92e2q2a5feujoaoiu8u89jkej3ibgs8m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
