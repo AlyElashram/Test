@@ -23,9 +23,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
-    Button SignInEmail_btn,SignUpEmail_btn,SignInGuest_btn,signout_btn;
-    EditText Email_txt,Password_txt,ConfirmPassword_txt;
+    Button SignInEmail_btn, SignUpEmail_btn, SignInGuest_btn, signout_btn;
+    EditText Email_txt, Password_txt, ConfirmPassword_txt;
     FirebaseAuth Authenticator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,20 +41,21 @@ public class MainActivity extends AppCompatActivity {
         SignInEmail_btn = findViewById(R.id.SignInEmail_btn);
         SignInGuest_btn = findViewById(R.id.SignInGuest_btn);
         SignUpEmail_btn = findViewById(R.id.SignUpEmail_btn);
-        signout_btn=findViewById(R.id.signout_btn);
+        signout_btn = findViewById(R.id.signout_btn);
         Authenticator = FirebaseAuth.getInstance();
         signout_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Authenticator.getCurrentUser()!=null){
+                if (Authenticator.getCurrentUser() != null) {
                     Authenticator.signOut();
                 }
             }
         });
-        if(Authenticator.getCurrentUser()==null) {
-            SignInEmail_btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+
+        SignInEmail_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Authenticator.getCurrentUser() == null) {
                     if (!checkValues()) {
                         showDialog("Missing Information", "Please Enter Email and password");
                     } else {
@@ -62,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
                                     //add Loading screen
-                                    startActivity(new Intent(MainActivity.this,Profile.class));
+                                    startActivity(new Intent(MainActivity.this, Profile.class));
+                                    finish();
                                 } else {
                                     Toast.makeText(MainActivity.this, "Email or Password Incorrect", Toast.LENGTH_SHORT).show();
                                 }
@@ -72,13 +75,17 @@ public class MainActivity extends AppCompatActivity {
 
 
                     }
-
                 }
-            });
+                else{
+                    showDialog("Sign in Not Available","You are Signed In as Guest Please Log out");
+                }
+            }
+        });
 
-            SignUpEmail_btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+        SignUpEmail_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Authenticator.getCurrentUser() == null) {
                     if (checkPasswordAndEmail() == 0) {
                         showDialog("Missing Information", "Missing Password or Password Confirmation");
                     } else if (checkPasswordAndEmail() == -1) {
@@ -94,7 +101,8 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isComplete()) {
-                                   startActivity(new Intent(MainActivity.this,Profile.class));
+                                    startActivity(new Intent(MainActivity.this, Profile.class));
+                                    finish();
 
                                 } else {
                                     Toast.makeText(MainActivity.this, task.getResult().toString(), Toast.LENGTH_SHORT).show();
@@ -105,23 +113,26 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }
-            });
+                else{
+                    showDialog("Sign in Not Available","You are Signed In as Guest Please Log out");
+            }
 
-            SignInGuest_btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Authenticator.signInAnonymously();
-                    // startActivity(new Intent(MainActivity.this,));
-                    //To Second Activity not profile
-                }
-            });
+            }
+        });
+        SignInGuest_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Authenticator.signInAnonymously();
+                startActivity(new Intent(MainActivity.this,Profile.class));
+                finish();
+                //To Second Activity not profile
+            }
+        });
 
 
-        }
-        else{
-//        startActivity(new Intent());
-        }
     }
+
+
     private boolean checkValues(){
         if(Email_txt.getText().toString().isEmpty()||Password_txt.getText().toString().isEmpty())
         {
