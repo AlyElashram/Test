@@ -50,10 +50,13 @@ public class SignUp extends AppCompatActivity {
                     } else if (checkPasswordAndEmail() == 3) {
                         showDialog("Password too short", "Password must be at least 6 characters");
                     } else {
+                        final LoaderDialog dialog=new LoaderDialog(SignUp.this);
+                        dialog.startDialog();
                         Authenticator.createUserWithEmailAndPassword(Email.getText().toString(), Password.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
+                                    dialog.dismissDialog();
                                     startActivity(new Intent(SignUp.this, Profile.class));
                                     finish();
                                 }else{
