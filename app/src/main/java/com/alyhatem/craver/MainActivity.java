@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,7 +23,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
-    Button SignInEmail_btn,SignUpEmail_btn,SignInGuest_btn;
+    Button SignInEmail_btn,SignUpEmail_btn,SignInGuest_btn,signout_btn;
     EditText Email_txt,Password_txt,ConfirmPassword_txt;
     FirebaseAuth Authenticator;
     @Override
@@ -38,7 +40,16 @@ public class MainActivity extends AppCompatActivity {
         SignInEmail_btn = findViewById(R.id.SignInEmail_btn);
         SignInGuest_btn = findViewById(R.id.SignInGuest_btn);
         SignUpEmail_btn = findViewById(R.id.SignUpEmail_btn);
+        signout_btn=findViewById(R.id.signout_btn);
         Authenticator = FirebaseAuth.getInstance();
+        signout_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Authenticator.getCurrentUser()!=null){
+                    Authenticator.signOut();
+                }
+            }
+        });
         if(Authenticator.getCurrentUser()==null) {
             SignInEmail_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -83,8 +94,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isComplete()) {
-                                    startActivity(new Intent(MainActivity.this,Profile.class));
-                                    //Add Loading Screen
+                                   startActivity(new Intent(MainActivity.this,Profile.class));
 
                                 } else {
                                     Toast.makeText(MainActivity.this, task.getResult().toString(), Toast.LENGTH_SHORT).show();
@@ -109,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
         else{
-            startActivity(new Intent());
+//        startActivity(new Intent());
         }
     }
     private boolean checkValues(){
