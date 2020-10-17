@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().hide();
         Email_txt = findViewById(R.id.Email_txt);
         Password_txt = findViewById(R.id.Password_txt);
         Register_btn=findViewById(R.id.Register_btn);
@@ -41,65 +40,69 @@ public class MainActivity extends AppCompatActivity {
         SignInGuest_btn = findViewById(R.id.SignInGuest_btn);
         signout_btn = findViewById(R.id.signout_btn);
         Authenticator = FirebaseAuth.getInstance();
-        signout_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Authenticator.getCurrentUser() != null) {
-                    Authenticator.signOut();
-                }
-            }
-        });
-        Register_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,SignUp.class));
-            }
-        });
-
-        SignInEmail_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Authenticator.getCurrentUser() == null) {
-                    if (!checkValues()) {
-                        showDialog("Missing Information", "Please Enter Email and password");
-                    } else {
-                        final LoaderDialog dialog=new LoaderDialog(MainActivity.this);
-                        dialog.startDialog();
-                        Authenticator.signInWithEmailAndPassword(Email_txt.getText().toString(), Password_txt.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    dialog.dismissDialog();
-                                    startActivity(new Intent(MainActivity.this, Profile.class));
-
-                                } else {
-                                    Toast.makeText(MainActivity.this, "Email or Password Incorrect or Not Registered", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-
-                        });
-
-
+        if(Authenticator.getCurrentUser()!=null) {
+            signout_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (Authenticator.getCurrentUser() != null) {
+                        Authenticator.signOut();
                     }
                 }
-                else{
-                    showDialog("Sign in Not Available","You Are Already Signed In");
+            });
+            Register_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(MainActivity.this, SignUp.class));
                 }
-            }
-        });
+            });
+
+            SignInEmail_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (Authenticator.getCurrentUser() == null) {
+                        if (!checkValues()) {
+                            showDialog("Missing Information", "Please Enter Email and password");
+                        } else {
+                            final LoaderDialog dialog = new LoaderDialog(MainActivity.this);
+                            dialog.startDialog();
+                            Authenticator.signInWithEmailAndPassword(Email_txt.getText().toString(), Password_txt.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        dialog.dismissDialog();
+                                        startActivity(new Intent(MainActivity.this, MainApp.class));
+
+                                    } else {
+                                        dialog.dismissDialog();
+                                        Toast.makeText(MainActivity.this, "Email or Password Incorrect or Not Registered", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                            });
 
 
-        SignInGuest_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Authenticator.signInAnonymously();
-                startActivity(new Intent(MainActivity.this,Profile.class));
-                finish();
-                //To Second Activity not profile
-            }
-        });
+                        }
+                    } else {
+                        showDialog("Sign in Not Available", "You Are Already Signed In");
+                    }
+                }
+            });
 
 
+            SignInGuest_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Authenticator.signInAnonymously();
+                    startActivity(new Intent(MainActivity.this, MainApp.class));
+                    finish();
+                }
+            });
+
+        }
+        else{
+            startActivity(new Intent(MainActivity.this,MainApp.class));
+            finish();
+        }
     }
 
 

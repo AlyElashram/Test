@@ -4,6 +4,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -44,10 +45,9 @@ public class Profile extends AppCompatActivity {
                     Client A=new Client(Name_txt.getText().toString(),
                             Integer.parseInt(Age_txt.getText().toString()),
                             Fav_txt.getText().toString(),
-                            Integer.parseInt(Freq_txt.getText().toString()),
-                            Authenticator.getCurrentUser().getUid());
+                            Integer.parseInt(Freq_txt.getText().toString()));
                     addClient(A);
-                    //To Craving
+                    startActivity(new Intent(Profile.this,MainApp.class));
 
 
                 }

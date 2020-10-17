@@ -4,12 +4,12 @@ public class Client {
     private String Name,Favourite_Restaurant,UID;
     private int Age,Frequency;
 
-    public Client(String name,int age,String Fav,int Freq,String Uid){
+    public Client(String name,int age,String Fav,int Freq){
         Name=name;
         Age=age;
         Favourite_Restaurant=Fav;
         Frequency=Freq;
-        UID=Uid;
+
     }
 
     public String getName() {
@@ -43,7 +43,5 @@ public class Client {
     public void setAge(int age) {
         Age = age;
     }
-    public String getUID(){
-        return UID;
-    }
+
 }
