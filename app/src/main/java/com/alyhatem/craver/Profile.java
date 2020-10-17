@@ -41,13 +41,13 @@ public class Profile extends AppCompatActivity {
                     showDialog("Incomplete","Some Information Is Missing");
                 }
                 else{
-
                     Client A=new Client(Name_txt.getText().toString(),
                             Integer.parseInt(Age_txt.getText().toString()),
                             Fav_txt.getText().toString(),
-                            Integer.parseInt(Freq_txt.getText().toString()));
+                            Integer.parseInt(Freq_txt.getText().toString()),Authenticator.getCurrentUser().getEmail());
                     addClient(A);
                     startActivity(new Intent(Profile.this,MainApp.class));
+                    finish();
 
 
                 }

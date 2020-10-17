@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.strictmode.IntentReceiverLeakedViolation;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,14 +34,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Email_txt = findViewById(R.id.Email_txt);
         Password_txt = findViewById(R.id.Password_txt);
-        Register_btn=findViewById(R.id.Register_btn);
+        Register_btn = findViewById(R.id.Register_btn);
         Email_txt.setHint("Email To sign in or Sign up");
         Password_txt.setHint("Password");
         SignInEmail_btn = findViewById(R.id.SignInEmail_btn);
         SignInGuest_btn = findViewById(R.id.SignInGuest_btn);
         signout_btn = findViewById(R.id.signout_btn);
         Authenticator = FirebaseAuth.getInstance();
-        if(Authenticator.getCurrentUser()!=null) {
+        if (Authenticator.getCurrentUser() == null) {
             signout_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                         if (!checkValues()) {
                             showDialog("Missing Information", "Please Enter Email and password");
                         } else {
-                            final LoaderDialog dialog = new LoaderDialog(MainActivity.this);
+                           final LoaderDialog dialog = new LoaderDialog(MainActivity.this);
                             dialog.startDialog();
                             Authenticator.signInWithEmailAndPassword(Email_txt.getText().toString(), Password_txt.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         dialog.dismissDialog();
                                         startActivity(new Intent(MainActivity.this, MainApp.class));
+                                        finish();
 
                                     } else {
                                         dialog.dismissDialog();
@@ -82,8 +84,6 @@ public class MainActivity extends AppCompatActivity {
 
 
                         }
-                    } else {
-                        showDialog("Sign in Not Available", "You Are Already Signed In");
                     }
                 }
             });
@@ -92,9 +92,11 @@ public class MainActivity extends AppCompatActivity {
             SignInGuest_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Authenticator.signInAnonymously();
-                    startActivity(new Intent(MainActivity.this, MainApp.class));
-                    finish();
+                    if (Authenticator.getCurrentUser() == null) {
+                        Authenticator.signInAnonymously();
+                        startActivity(new Intent(MainActivity.this, MainApp.class));
+                        finish();
+                    }
                 }
             });
 
@@ -104,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
     }
+
+
 
 
     private boolean checkValues(){

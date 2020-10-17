@@ -21,8 +21,11 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
@@ -34,16 +37,30 @@ public class MainApp extends AppCompatActivity {
     private DrawerLayout drawer;
     private FirebaseAuth Authenticator;
     private DatabaseReference users_ref;
-    FirebaseDatabase database;
+    ArrayList<String> users;
     private NavigationView nav_view;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_app);
-        database=FirebaseDatabase.getInstance();
+        users=new ArrayList<>();
         Authenticator=FirebaseAuth.getInstance();
         users_ref= FirebaseDatabase.getInstance().getReference("Users");
         nav_view=findViewById(R.id.nav_view);
+        users_ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                users.clear();
+                for(DataSnapshot Users:snapshot.getChildren()){
+                    users.add(snapshot.getValue().toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -53,18 +70,19 @@ public class MainApp extends AppCompatActivity {
                     Authenticator.signOut();
                     dialog.dismissDialog();
                     startActivity(new Intent(MainApp.this,MainActivity.class));
+                    finish();
                     return false;
                 }
-            /*    if(item.getTitle().equals("Profile")){
+              if(item.getTitle().equals("Profile")){
                     String uid=Authenticator.getCurrentUser().getUid();
-                    if() {
+                    if(users.contains(uid)) {
                         Toast.makeText(MainApp.this,"User has no profile",Toast.LENGTH_LONG).show();
                     }
                     else{
                         Toast.makeText(MainApp.this,"IDK",Toast.LENGTH_LONG).show();
                     }
 
-                }*/
+                }
 
                 return false;
             }

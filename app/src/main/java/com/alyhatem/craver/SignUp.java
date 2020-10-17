@@ -17,15 +17,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUp extends AppCompatActivity {
     EditText Email,Password,ConfirmPassword;
     Button SignUpEmail_btn;
     FirebaseAuth Authenticator;
+    DatabaseReference Users_ref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+        Users_ref=FirebaseDatabase.getInstance().getReference("Users");
         Authenticator=FirebaseAuth.getInstance();
         Email=findViewById(R.id.EmailSignUp_txt);
         Password=findViewById(R.id.PasswordSignup_txt);
@@ -56,11 +60,14 @@ public class SignUp extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
+                                    String uid=Authenticator.getUid();
+                                    Users_ref.child(uid).setValue(Authenticator.getCurrentUser().getEmail());
                                     dialog.dismissDialog();
                                     startActivity(new Intent(SignUp.this, Profile.class));
                                     finish();
                                 }else{
-                                            Toast.makeText(SignUp.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                    dialog.dismissDialog();
+                                    Toast.makeText(SignUp.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                     }
                                 }
 

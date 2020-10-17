@@ -1,14 +1,15 @@
 package com.alyhatem.craver;
 
 public class Client {
-    private String Name,Favourite_Restaurant,UID;
+    private String Name,Favourite_Restaurant,UID,Email;
     private int Age,Frequency;
 
-    public Client(String name,int age,String Fav,int Freq){
+    public Client(String name,int age,String Fav,int Freq,String Email){
         Name=name;
         Age=age;
         Favourite_Restaurant=Fav;
         Frequency=Freq;
+        this.Email=Email;
 
     }
 
