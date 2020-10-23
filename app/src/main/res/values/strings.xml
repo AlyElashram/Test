@@ -11,4 +11,6 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="username">Username</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_up_text">Sign up!</string>
 </resources>
