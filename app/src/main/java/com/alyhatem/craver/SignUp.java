@@ -37,10 +37,6 @@ public class SignUp extends AppCompatActivity {
         Password=findViewById(R.id.PasswordSignup_txt);
         ConfirmPassword=findViewById(R.id.ConfirmPasswordSignup_txt);
         SignUpEmail_btn=findViewById(R.id.signup_btn);
-        Email.setHint("Email:");
-        Password.setHint("Password:");
-        ConfirmPassword.setHint("Confirm Password");
-
 
         SignUpEmail_btn.setOnClickListener(new View.OnClickListener() {
             @Override
