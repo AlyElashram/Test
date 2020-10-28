@@ -1,6 +1,7 @@
 package com.alyhatem.craver;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -10,12 +11,15 @@ import androidx.navigation.Navigation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,34 +34,58 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 public class MainApp extends AppCompatActivity {
-    private TextView nav_username;
+    private TextView nav_username,Email;
     private DrawerLayout drawer;
     private FirebaseAuth Authenticator;
-    private DatabaseReference users_ref;
-    ArrayList<String> users;
+    private DatabaseReference user;
     private NavigationView nav_view;
+    private ArrayList<String> profile;
+    private ImageView user_Image;
+    private Uri imageUri;
+    private final static int PICK_IMAGE=100;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_app);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        users=new ArrayList<>();
         Authenticator=FirebaseAuth.getInstance();
-        users_ref= FirebaseDatabase.getInstance().getReference("Users");
+        user=FirebaseDatabase.getInstance().getReference().child("Users").child(Authenticator.getUid());
+        Toolbar toolbar=findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        drawer=findViewById(R.id.drawerlayout);
+        ActionBarDrawerToggle toggle=new ActionBarDrawerToggle(MainApp.this,drawer,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        profile=new ArrayList<>();
         nav_view=findViewById(R.id.nav_view);
-        nav_username=findViewById(R.id.nav_username_txt);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View headerView = navigationView.getHeaderView(0);
+        nav_username= (TextView) headerView.findViewById(R.id.nav_username_txt);
+        Email=headerView.findViewById(R.id.nav_email_txt);
+       user_Image=headerView.findViewById(R.id.nav_view_image);
 
-        users_ref.addValueEventListener(new ValueEventListener() {
+
+       user_Image.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               openGallery();
+           }
+       });
+
+        user.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                users.clear();
-                for(DataSnapshot Users:snapshot.getChildren()){
-                    users.add(snapshot.getValue().toString());
+                if(!(snapshot.getValue()==null)){
+                    profile.add(snapshot.child("name").getValue().toString());
+                    profile.add(snapshot.child("age").getValue().toString());
+
                 }
+
             }
 
             @Override
@@ -65,6 +93,13 @@ public class MainApp extends AppCompatActivity {
 
             }
         });
+
+
+
+
+
+
+
         nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -78,25 +113,34 @@ public class MainApp extends AppCompatActivity {
                     return false;
                 }
               if(item.getTitle().equals("Profile")){
-                    String uid=Authenticator.getCurrentUser().getUid();
-                    if(users.contains(uid)) {
-                        Toast.makeText(MainApp.this,"User has no profile",Toast.LENGTH_LONG).show();
-                    }
-                    else{
-                        Toast.makeText(MainApp.this,"IDK",Toast.LENGTH_LONG).show();
-                    }
+                  if(profile.isEmpty()){
+                      Toast.makeText(MainApp.this,"Signed in as Guest.No Profile Available",Toast.LENGTH_LONG).show();
+                  }
+                  else{
+                      //Edit profile
+                  }
+
 
                 }
 
                 return false;
             }
         });
-        Toolbar toolbar=findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        drawer=findViewById(R.id.drawerlayout);
-        ActionBarDrawerToggle toggle=new ActionBarDrawerToggle(MainApp.this,drawer,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+
+    }
+
+    private void openGallery(){
+        Intent openGallery=new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+        startActivityForResult(openGallery,PICK_IMAGE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_OK&&requestCode==PICK_IMAGE){
+            imageUri=data.getData();
+            user_Image.setImageURI(imageUri);
+        }
     }
 
     @Override

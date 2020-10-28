@@ -4,8 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -40,57 +43,86 @@ public class MainActivity extends AppCompatActivity {
         SignInEmail_btn = findViewById(R.id.SignInEmail_btn);
         SignInGuest_btn = findViewById(R.id.SignInGuest_btn);
         Authenticator = FirebaseAuth.getInstance();
+
+
         if (Authenticator.getCurrentUser() == null) {
-            Register_btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(MainActivity.this, SignUp.class));
-                }
-            });
 
-            SignInEmail_btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (Authenticator.getCurrentUser() == null) {
-                        if (!checkValues()) {
-                            showDialog("Missing Information", "Please Enter Email and password");
-                        } else {
-                           final LoaderDialog dialog = new LoaderDialog(MainActivity.this);
-                            dialog.startDialog();
-                            Authenticator.signInWithEmailAndPassword(Email_txt.getText().toString(), Password_txt.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        dialog.dismissDialog();
-                                        startActivity(new Intent(MainActivity.this, MainApp.class));
-                                        finish();
-                                    } else {
-                                        dialog.dismissDialog();
-                                        Toast.makeText(MainActivity.this, "Email or Password Incorrect or Not Registered", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-
-                            });
-
-
+                Register_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(!isConnected()){
+                            showDialog("No Internet","This app requires an Internet Connection");
+                        }
+                        else {
+                            startActivity(new Intent(MainActivity.this, SignUp.class));
                         }
                     }
-                }
-            });
+                });
+
+                SignInEmail_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!isConnected()) {
+                            showDialog("No Internet", "This app requires an Internet Connection");
+                        } else {
+                            if (Authenticator.getCurrentUser() == null) {
+                                if (!checkValues()) {
+                                    showDialog("Missing Information", "Please Enter Email and password");
+                                } else {
+                                    final LoaderDialog dialog = new LoaderDialog(MainActivity.this);
+                                    dialog.startDialog();
+                                    Authenticator.signInWithEmailAndPassword(Email_txt.getText().toString(), Password_txt.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<AuthResult> task) {
+                                            if (task.isSuccessful()) {
+                                                dialog.dismissDialog();
+                                                startActivity(new Intent(MainActivity.this, MainApp.class));
+                                                finish();
+                                            } else {
+                                                dialog.dismissDialog();
+                                                Toast.makeText(MainActivity.this, "Email or Password Incorrect or Not Registered", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+
+                                    });
 
 
-            SignInGuest_btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (Authenticator.getCurrentUser() == null) {
-                        Authenticator.signInAnonymously();
-                        startActivity(new Intent(MainActivity.this, MainApp.class));
-                        finish();
+                                }
+                            }
+                        }
                     }
-                }
-            });
+                });
 
-        }
+
+                SignInGuest_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!isConnected()) {
+                            showDialog("No Internet", "This app requires an Internet Connection");
+                        } else {
+                            final LoaderDialog dialog = new LoaderDialog(MainActivity.this);
+                            dialog.startDialog();
+                            if (Authenticator.getCurrentUser() == null) {
+                                Authenticator.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful()) {
+                                            dialog.dismissDialog();
+                                            startActivity(new Intent(MainActivity.this, MainApp.class));
+                                            finish();
+                                        } else {
+                                            dialog.dismissDialog();
+                                        }
+                                    }
+                                });
+
+
+                            }
+                        }
+                    }
+                });
+
+            }
         else{
             startActivity(new Intent(MainActivity.this,MainApp.class));
             finish();
@@ -122,5 +154,17 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog alert=builder.create();
         alert.show();
 
+    }
+    private boolean isConnected(){
+        try{
+        ConnectivityManager manager= (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info=null;
+       if(manager!=null){
+        info=manager.getActiveNetworkInfo();
+       }
+       return info!=null&&info.isConnected();
+        }catch(NullPointerException e){
+            return false;
+        }
     }
 }
