@@ -7,8 +7,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.Navigation;
-
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -24,6 +30,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -38,8 +46,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 
-public class MainApp extends AppCompatActivity {
-    private TextView nav_username,Email;
+public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
+    private TextView nav_username,phone;
     private DrawerLayout drawer;
     private FirebaseAuth Authenticator;
     private DatabaseReference user;
@@ -48,6 +56,7 @@ public class MainApp extends AppCompatActivity {
     private ImageView user_Image;
     private Uri imageUri;
     private final static int PICK_IMAGE=100;
+    private GoogleMap map;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,8 +75,8 @@ public class MainApp extends AppCompatActivity {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
         nav_username= (TextView) headerView.findViewById(R.id.nav_username_txt);
-        Email=headerView.findViewById(R.id.nav_email_txt);
-       user_Image=headerView.findViewById(R.id.nav_view_image);
+        phone=headerView.findViewById(R.id.nav_phone_txt);
+        user_Image=headerView.findViewById(R.id.nav_view_image);
 
 
        user_Image.setOnClickListener(new View.OnClickListener() {
@@ -83,19 +92,17 @@ public class MainApp extends AppCompatActivity {
                 if(!(snapshot.getValue()==null)){
                     profile.add(snapshot.child("name").getValue().toString());
                     profile.add(snapshot.child("age").getValue().toString());
-
+                    profile.add(snapshot.child("frequency").getValue().toString());
+                    profile.add(snapshot.child("favourite_Restaurant").getValue().toString());
+                    nav_username.setText(snapshot.child("name").getValue().toString());
                 }
-
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Toast.makeText(getApplicationContext(),"Database Error",Toast.LENGTH_LONG);
             }
         });
-
-
-
 
 
 
@@ -117,11 +124,17 @@ public class MainApp extends AppCompatActivity {
                       Toast.makeText(MainApp.this,"Signed in as Guest.No Profile Available",Toast.LENGTH_LONG).show();
                   }
                   else{
-                      //Edit profile
+                    startActivity(new Intent(MainApp.this,Profile.class));
                   }
 
 
                 }
+              if(item.getTitle().equals("Change Password")){
+                  startActivity(new Intent(MainApp.this,change_password.class));
+
+
+              }
+
 
                 return false;
             }
@@ -151,5 +164,16 @@ public class MainApp extends AppCompatActivity {
         else{
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        LatLng sydney = new LatLng(-34, 151);
+        map.addMarker(new MarkerOptions()
+                .position(sydney)
+                .title("Marker in Sydney"));
+        map.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
     }
 }
