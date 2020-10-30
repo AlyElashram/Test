@@ -7,7 +7,7 @@
     android:id="@+id/drawerlayout"
     android:fitsSystemWindows="true"
     tools:openDrawer="start"
-    android:background="@drawable/ic_main_background"
+    android:background="@drawable/background_new"
     tools:context=".MainApp">
 
     <LinearLayout

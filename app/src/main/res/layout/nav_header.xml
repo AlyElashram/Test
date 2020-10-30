@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="176dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/cardview_dark_background"
+    android:background="@color/black"
     android:orientation="vertical"
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
@@ -25,6 +25,8 @@
 
     <TextView
         android:id="@+id/nav_username_txt"
+        android:textSize="16dp"
+        android:fontFamily="@font/sfregular"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
@@ -32,9 +34,11 @@
 
     <TextView
         android:id="@+id/nav_phone_txt"
+        android:fontFamily="@font/sfregular"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
+        android:textSize="16dp"
         android:text="Phone" />
 
 

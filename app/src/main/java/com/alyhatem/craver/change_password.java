@@ -20,39 +20,39 @@ import com.google.firebase.auth.FirebaseUser;
 public class change_password extends AppCompatActivity {
     Button change_password_btn;
     FirebaseAuth Authenticator;
-    EditText old_passowrd, new_password;
-     boolean flag=true;
+    EditText  new_password;
+    private int check=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
         change_password_btn = findViewById(R.id.change_password_btn);
-        old_passowrd = findViewById(R.id.old_password);
+
         new_password = findViewById(R.id.new_password);
         Authenticator = FirebaseAuth.getInstance();
         FirebaseUser user = Authenticator.getCurrentUser();
         change_password_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(old_passowrd.getText().toString().isEmpty()||new_password.getText().toString().isEmpty()){
-                    showDialog("Missing Information","Please Enter Old Password and new Password");
+                if(new_password.getText().toString().isEmpty()){
+                    showDialog("Missing Information","Please Enter a new Password");
                 }
                 else if(new_password.getText().toString().length()<6){
                     showDialog("Short Password","Password has to be at least 6 characters");
                 }
-                else if(new_password.getText().equals(old_passowrd.getText())) {
-                    showDialog("No change","Old password and new password can not be the same");
-                }
                 else{
                     Authenticator.getCurrentUser().updatePassword(new_password.getText().toString());
                     startActivity(new Intent(change_password.this,MainApp.class));
+                    finish();
                 }
             }
         });
 
 
     }
+
+
 
 
     private void showDialog(String Title,String Message){

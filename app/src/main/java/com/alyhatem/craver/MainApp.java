@@ -120,7 +120,6 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
               if(item.getTitle().equals("Change Password")){
                   startActivity(new Intent(MainApp.this,change_password.class));
 
-
               }
 
 
@@ -164,4 +163,6 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
     }
+
+
 }
