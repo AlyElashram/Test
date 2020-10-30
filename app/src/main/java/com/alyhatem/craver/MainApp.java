@@ -1,5 +1,16 @@
 package com.alyhatem.craver;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -7,31 +18,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentActivity;
-import androidx.navigation.Navigation;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -40,12 +32,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.zip.Inflater;
-
+@SuppressWarnings("ConstantConditions")
 public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     private TextView nav_username,phone;
     private DrawerLayout drawer;
@@ -72,9 +60,8 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         toggle.syncState();
         profile=new ArrayList<>();
         nav_view=findViewById(R.id.nav_view);
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        View headerView = navigationView.getHeaderView(0);
-        nav_username= (TextView) headerView.findViewById(R.id.nav_username_txt);
+        View headerView = nav_view.getHeaderView(0);
+        nav_username= headerView.findViewById(R.id.nav_username_txt);
         phone=headerView.findViewById(R.id.nav_phone_txt);
         user_Image=headerView.findViewById(R.id.nav_view_image);
 
@@ -88,6 +75,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
 
         user.addValueEventListener(new ValueEventListener() {
             @Override
+            @SuppressWarnings("Constant Conditions")
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(!(snapshot.getValue()==null)){
                     profile.add(snapshot.child("name").getValue().toString());
@@ -100,7 +88,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getApplicationContext(),"Database Error",Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(),"Database Error",Toast.LENGTH_LONG).show();
             }
         });
 
