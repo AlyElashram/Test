@@ -1,6 +1,7 @@
 package com.alyhatem.craver;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -16,9 +17,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,6 +41,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 @SuppressWarnings("ConstantConditions")
 public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
@@ -48,6 +55,10 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     private Uri imageUri;
     private final static int PICK_IMAGE=100;
     private GoogleMap map;
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter card_Adapter;
+    private RecyclerView.LayoutManager recycler_LayoutManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +78,23 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         nav_username= headerView.findViewById(R.id.nav_username_txt);
         phone=headerView.findViewById(R.id.nav_phone_txt);
         user_Image=headerView.findViewById(R.id.nav_view_image);
+
+        ArrayList<CardItem> items=new ArrayList<>();
+        for(int i=0;i<6;i++){
+            CardItem a=new CardItem(R.drawable.ic_email_icon,"Mcdonalds","KFC");
+            items.add(a);
+        }
+
+        recyclerView=findViewById(R.id.recyclerview);
+        recyclerView.setHasFixedSize(true);
+        recycler_LayoutManager=new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,false);
+        card_Adapter=new RecyclerAdapter(items);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                LinearLayoutManager.HORIZONTAL);
+        recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.setLayoutManager(recycler_LayoutManager);
+        recyclerView.setAdapter(card_Adapter);
+
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
@@ -124,9 +152,12 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
 
                 }
               if(item.getTitle().equals("Change Password")){
-                  startActivity(new Intent(MainApp.this,change_password.class));
+                  if(!(profile.isEmpty())) {
+                      startActivity(new Intent(MainApp.this, change_password.class));
+                  }
 
-              }
+                }
+
 
 
                 return false;
@@ -169,6 +200,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
     }
+
 
 
 }
