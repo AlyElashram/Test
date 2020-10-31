@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -18,15 +19,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class change_password extends AppCompatActivity {
-    Button change_password_btn;
-    FirebaseAuth Authenticator;
-    EditText  new_password;
-    private int check=0;
+    private Button change_password_btn;
+    private FirebaseAuth Authenticator;
+    private EditText  new_password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         change_password_btn = findViewById(R.id.change_password_btn);
 
         new_password = findViewById(R.id.new_password);
