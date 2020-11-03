@@ -33,6 +33,8 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,6 +43,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -65,6 +69,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     private final static int PICK_IMAGE = 100;
     private int click;
     private Toolbar toolbar;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
     private GoogleMap map;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter card_Adapter;
@@ -73,16 +78,17 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
+    private boolean permissiongranted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_app);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-      /*  if (!(ContextCompat.checkSelfPermission(MainApp.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+        if (!(ContextCompat.checkSelfPermission(MainApp.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
             requestLocation();
 
-        }*/
+        }
 
         Authenticator = FirebaseAuth.getInstance();
         user = FirebaseDatabase.getInstance().getReference().child("Users").child(Authenticator.getUid());
@@ -207,39 +213,30 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-           requestLocation();
+            requestLocation();
 
             return;
-        }
-        else{
+        } else {
             map.setMyLocationEnabled(true);
-            LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            double longitude = location.getLongitude();
-            double latitude = location.getLatitude();
-            LatLng sydney = new LatLng(longitude, latitude);
-            map.addMarker(new MarkerOptions()
-                    .position(sydney)
-                    .title("Marker in Sydney"));
+            getLocation();
+
         }
 
 
-
-
     }
 
 
-    private void requestLocation(){
-    if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)) {
-        showDialog("Permission Required", "For the App to work properly the Location is required");
-    }
-    else{
-        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},Location_Permission_Code);
-    }
+    private void requestLocation() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            showDialog("Permission Required", "For the App to work properly the Location is required");
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Location_Permission_Code);
+        }
 
     }
-    private void showDialog(String Title,String Message){
-        AlertDialog.Builder builder=new AlertDialog.Builder(MainApp.this);
+
+    private void showDialog(String Title, String Message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainApp.this);
         builder.setMessage(Title);
         builder.setCancelable(false);
         builder.setTitle(Message);
@@ -252,23 +249,54 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ActivityCompat.requestPermissions(MainApp.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},Location_Permission_Code);
+                ActivityCompat.requestPermissions(MainApp.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Location_Permission_Code);
             }
         });
-        AlertDialog alert=builder.create();
+        AlertDialog alert = builder.create();
         alert.show();
 
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode==Location_Permission_Code){
-            if(grantResults.length>0&&grantResults[0]==PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(MainApp.this,"Permission Granted",Toast.LENGTH_LONG).show();
+        if (requestCode == Location_Permission_Code) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                permissiongranted = true;
+                Toast.makeText(MainApp.this, "Permission Granted", Toast.LENGTH_LONG).show();
             }
+        } else {
+            Toast.makeText(MainApp.this, "Permission Denied", Toast.LENGTH_LONG).show();
+            permissiongranted = false;
         }
-        else{
-            Toast.makeText(MainApp.this,"Permission Denied",Toast.LENGTH_LONG).show();
-        }
+    }
+
+    private void getLocation() {
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainApp.this);
+       try {
+           if (permissiongranted) {
+               if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                       ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                   return;
+               }
+               final Task Location = mFusedLocationProviderClient.getLastLocation();
+               Location.addOnCompleteListener(new OnCompleteListener() {
+                   @Override
+                   public void onComplete(@NonNull Task task) {
+                       if (task.isSuccessful()) {
+                           Location CurrentLocation =(Location)task.getResult();
+                           LatLng mylocation=new LatLng(CurrentLocation.getLatitude(),CurrentLocation.getLongitude());
+                           map.moveCamera(CameraUpdateFactory.newLatLng(mylocation));
+
+                       }
+                       else{
+                           Toast.makeText(MainApp.this, "Not able to access current location", Toast.LENGTH_SHORT).show();
+                       }
+                   }
+               });
+           }
+       }catch(SecurityException e){
+           Toast.makeText(MainApp.this,"Security exception"+e.getLocalizedMessage(),Toast.LENGTH_LONG).show();
+       }
+
     }
 }
