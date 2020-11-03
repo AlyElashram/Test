@@ -16,7 +16,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class Profile extends AppCompatActivity {
-    EditText Name_txt,Age_txt,Freq_txt,Fav_txt;
+    EditText Name_txt,Age_txt,Phone_txt,Fav_txt;
     Button RegisterProfile_btn;
     FirebaseAuth Authenticator;
     DatabaseReference users_Ref;
@@ -31,8 +31,7 @@ public class Profile extends AppCompatActivity {
         Name_txt.setHint("Name:");
         Age_txt=findViewById(R.id.Age_txt);
         Age_txt.setHint("Age:");
-        Freq_txt=findViewById(R.id.Frequency_txt);
-        Freq_txt.setHint("How many times do you order a week");
+        Phone_txt=findViewById(R.id.Phone_txt);
         Fav_txt=findViewById(R.id.Fav_txt);
         Fav_txt.setHint("Favourite Restaurant");
         RegisterProfile_btn=findViewById(R.id.SetProfile_btn);
@@ -45,8 +44,8 @@ public class Profile extends AppCompatActivity {
                 else{
                     Client A=new Client(Name_txt.getText().toString(),
                             Integer.parseInt(Age_txt.getText().toString()),
-                            Fav_txt.getText().toString(),
-                            Integer.parseInt(Freq_txt.getText().toString()),Authenticator.getCurrentUser().getEmail());
+                            Fav_txt.getText().toString(),Phone_txt.getText().toString()
+                            );
                     addClient(A);
                     startActivity(new Intent(Profile.this,MainApp.class));
                     finish();
@@ -62,7 +61,7 @@ public class Profile extends AppCompatActivity {
     private boolean checkValues(){
         if(Name_txt.getText().toString().isEmpty()||
            Age_txt.getText().toString().isEmpty()||
-           Freq_txt.getText().toString().isEmpty()||
+           Phone_txt.getText().toString().isEmpty()||
            Fav_txt.getText().toString().isEmpty())
         {
             return false;

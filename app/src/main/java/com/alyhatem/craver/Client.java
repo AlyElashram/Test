@@ -1,15 +1,15 @@
 package com.alyhatem.craver;
 
 public class Client {
-    private String Name,Favourite_Restaurant,UID,Email;
-    private int Age,Frequency;
+    private String Name,Favourite_Restaurant,PhoneNumber;
+    private int Age;
 
-    public Client(String name,int age,String Fav,int Freq,String Email){
+    public Client(String name,int age,String Fav,String PhoneNumber){
         Name=name;
         Age=age;
         Favourite_Restaurant=Fav;
-        Frequency=Freq;
-        this.Email=Email;
+        this.PhoneNumber=PhoneNumber;
+
 
     }
 
@@ -29,12 +29,9 @@ public class Client {
         Favourite_Restaurant = favourite_Restaurant;
     }
 
-    public int getFrequency() {
-        return Frequency;
-    }
 
-    public void setFrequency(int frequency) {
-        Frequency = frequency;
+    public String getPhoneNumber(){
+        return PhoneNumber;
     }
 
     public int getAge() {

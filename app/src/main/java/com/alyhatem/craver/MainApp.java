@@ -5,12 +5,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Camera;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -85,10 +87,6 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_app);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        if (!(ContextCompat.checkSelfPermission(MainApp.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-            requestLocation();
-
-        }
 
         Authenticator = FirebaseAuth.getInstance();
         user = FirebaseDatabase.getInstance().getReference().child("Users").child(Authenticator.getUid());
@@ -139,9 +137,10 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
                 if (!(snapshot.getValue() == null)) {
                     profile.add(snapshot.child("name").getValue().toString());
                     profile.add(snapshot.child("age").getValue().toString());
-                    profile.add(snapshot.child("frequency").getValue().toString());
+                    profile.add(snapshot.child("phoneNumber").getValue().toString());
                     profile.add(snapshot.child("favourite_Restaurant").getValue().toString());
                     nav_username.setText(snapshot.child("name").getValue().toString());
+                    phone.setText(snapshot.child("phoneNumber").getValue().toString());
                 }
             }
 
@@ -220,6 +219,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
             map.setMyLocationEnabled(true);
             getLocation();
 
+
         }
 
 
@@ -227,10 +227,16 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
 
 
     private void requestLocation() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)&&
+                ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
             showDialog("Permission Required", "For the App to work properly the Location is required");
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Location_Permission_Code);
+
+        }
+
+        else {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, Location_Permission_Code);
         }
 
     }
@@ -249,7 +255,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ActivityCompat.requestPermissions(MainApp.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Location_Permission_Code);
+                ActivityCompat.requestPermissions(MainApp.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, Location_Permission_Code);
             }
         });
         AlertDialog alert = builder.create();
@@ -260,7 +266,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == Location_Permission_Code) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED) {
                 permissiongranted = true;
                 Toast.makeText(MainApp.this, "Permission Granted", Toast.LENGTH_LONG).show();
             }
@@ -270,22 +276,25 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         }
     }
 
+    private void moveCamera(LatLng latLng,float Zoom){
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,Zoom));
+    }
+
     private void getLocation() {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainApp.this);
        try {
-           if (permissiongranted) {
                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                        ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                   return;
+                    return;
                }
-               final Task Location = mFusedLocationProviderClient.getLastLocation();
+               Task Location = mFusedLocationProviderClient.getLastLocation();
                Location.addOnCompleteListener(new OnCompleteListener() {
                    @Override
                    public void onComplete(@NonNull Task task) {
                        if (task.isSuccessful()) {
                            Location CurrentLocation =(Location)task.getResult();
                            LatLng mylocation=new LatLng(CurrentLocation.getLatitude(),CurrentLocation.getLongitude());
-                           map.moveCamera(CameraUpdateFactory.newLatLng(mylocation));
+                           moveCamera(mylocation,15f);
 
                        }
                        else{
@@ -293,7 +302,6 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
                        }
                    }
                });
-           }
        }catch(SecurityException e){
            Toast.makeText(MainApp.this,"Security exception"+e.getLocalizedMessage(),Toast.LENGTH_LONG).show();
        }
