@@ -17,12 +17,24 @@
         android:orientation="vertical">
 
 
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.MapFragment"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_conversion_absoluteHeight="469dp"
+            tools:layout_conversion_absoluteWidth="411dp" />
+
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            android:layout_width="409dp"
+            android:layout_width="0dp"
             android:layout_height="55dp"
             android:background="#FFFFFFFF"
-            android:elevation="1dp"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -36,45 +48,18 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"
             android:layout_width="410dp"
-            android:layout_height="127dp"
-            android:layout_marginBottom="4dp"
-            android:elevation="1dp"
-            android:layout_marginEnd="2dp"
+            android:layout_height="199dp"
             android:scrollbars="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/map"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintVertical_bias="1.0"
             tools:layout_conversion_absoluteHeight="206dp"
             tools:layout_conversion_absoluteWidth="411dp">
 
         </androidx.recyclerview.widget.RecyclerView>
-
-        <fragment
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.MapFragment"
-            android:layout_width="408dp"
-            android:layout_height="734dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:layout_conversion_absoluteHeight="469dp"
-            tools:layout_conversion_absoluteWidth="411dp" />
-
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/mapView3"
-            android:layout_width="408dp"
-            android:layout_height="741dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/recyclerview"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:layout_conversion_absoluteHeight="0dp"
-            tools:layout_conversion_absoluteWidth="411dp" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -88,7 +73,9 @@
         android:id="@+id/nav_view"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/drawer_menu"
-        />
+        >
+
+    </com.google.android.material.navigation.NavigationView>
 
 
 </androidx.drawerlayout.widget.DrawerLayout>
