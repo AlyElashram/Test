@@ -1,5 +1,6 @@
 package com.alyhatem.craver;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,9 +12,15 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthOptions;
+import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.concurrent.TimeUnit;
 
 public class Profile extends AppCompatActivity {
     EditText Name_txt,Age_txt,Phone_txt,Fav_txt;
@@ -47,7 +54,7 @@ public class Profile extends AppCompatActivity {
                             Fav_txt.getText().toString(),Phone_txt.getText().toString()
                             );
                     addClient(A);
-                    startActivity(new Intent(Profile.this,MainApp.class));
+                    startActivity(new Intent(Profile.this,OTP.class).putExtra("Phone", Phone_txt.getText().toString()));
                     finish();
 
 

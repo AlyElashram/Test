@@ -80,7 +80,6 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
-    private boolean permissiongranted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -267,12 +266,10 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == Location_Permission_Code) {
             if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED) {
-                permissiongranted = true;
                 Toast.makeText(MainApp.this, "Permission Granted", Toast.LENGTH_LONG).show();
             }
         } else {
             Toast.makeText(MainApp.this, "Permission Denied", Toast.LENGTH_LONG).show();
-            permissiongranted = false;
         }
     }
 

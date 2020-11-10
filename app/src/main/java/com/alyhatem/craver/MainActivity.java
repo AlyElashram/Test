@@ -29,7 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     Button SignInEmail_btn, SignInGuest_btn,Register_btn;
-    EditText Email_txt, Password_txt;
+    public static EditText Email_txt, Password_txt;
     FirebaseAuth Authenticator;
 
     @Override

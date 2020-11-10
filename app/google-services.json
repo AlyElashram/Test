@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "116631516958-5pung9biuhlphjjn8gng8v3vll9pjg5b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alyhatem.craver",
+            "certificate_hash": "aa1ee480d1126f9285a492dd956ad3eac9a0179c"
+          }
+        },
+        {
           "client_id": "116631516958-92e2q2a5feujoaoiu8u89jkej3ibgs8m.apps.googleusercontent.com",
           "client_type": 3
         }
