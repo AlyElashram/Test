@@ -50,7 +50,6 @@ public class OTP extends AppCompatActivity {
         Phone=getIntent().getStringExtra("Phone");
         Email_txt=MainActivity.Email_txt;
         Password_txt=MainActivity.Password_txt;
-        Authenticator.signOut();
         Verify_btn=findViewById(R.id.Verify_btn);
         send_btn=findViewById(R.id.send_btn);
         d1=findViewById(R.id.d1);
@@ -155,25 +154,8 @@ public class OTP extends AppCompatActivity {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential credential) {
                 Log.d("TAG", "onVerificationCompleted:" + credential);
-                Authenticator.signOut();
-                Authenticator.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            Toast.makeText(OTP.this,"Phone verified",Toast.LENGTH_LONG).show();
-                            Authenticator.signOut();
-                            Authenticator.signInWithEmailAndPassword(Email_txt.getText().toString(),Password_txt.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if(task.isSuccessful()){
-                                    startActivity(new Intent(OTP.this,MainApp.class));
-                                    }
-                                }
+                startActivity(new Intent(OTP.this,MainApp.class));
 
-                            });
-                        }
-                    }
-                });
     }
 
             @Override

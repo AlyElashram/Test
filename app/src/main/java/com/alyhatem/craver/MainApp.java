@@ -60,7 +60,6 @@ import java.util.ArrayList;
 @SuppressWarnings("ConstantConditions")
 public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     private TextView nav_username, phone;
-    private Button elevation_btn;
     private DrawerLayout drawer;
     private FirebaseAuth Authenticator;
     private DatabaseReference user;
@@ -69,7 +68,6 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     private ImageView user_Image;
     private Uri imageUri;
     private final static int PICK_IMAGE = 100;
-    private int click;
     private Toolbar toolbar;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private GoogleMap map;
@@ -77,20 +75,16 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     private RecyclerView.Adapter card_Adapter;
     private RecyclerView.LayoutManager recycler_LayoutManager;
     private int Location_Permission_Code = 1;
-    private LocationManager locationManager;
-    private static final long MIN_TIME = 400;
-    private static final float MIN_DISTANCE = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_app);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         Authenticator = FirebaseAuth.getInstance();
-        user = FirebaseDatabase.getInstance().getReference().child("Users").child(Authenticator.getUid());
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        user = FirebaseDatabase.getInstance().getReference().child("Users/"+Authenticator.getUid());
+       toolbar = findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
         drawer = findViewById(R.id.drawerlayout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(MainApp.this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -104,7 +98,6 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
         ArrayList<CardItem> items = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             CardItem a = new CardItem(R.drawable.ic_email_icon, "Mcdonalds", "KFC");
