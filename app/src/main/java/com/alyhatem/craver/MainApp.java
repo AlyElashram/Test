@@ -204,12 +204,12 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestLocation();
-
+            Toast.makeText(MainApp.this,"Location Access is required for the app to run properly",Toast.LENGTH_LONG).show();
             return;
         } else {
             map.setMyLocationEnabled(true);
             getLocation();
+            map.getUiSettings().setMyLocationButtonEnabled(false);
 
 
         }
