@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Camera;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +39,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -56,10 +60,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("ConstantConditions")
 public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     private TextView nav_username, phone;
+    private EditText Search_txt;
+    public String LocationURL;
+    private Button Search_loc_btn;
     private DrawerLayout drawer;
     private FirebaseAuth Authenticator;
     private DatabaseReference user;
@@ -81,67 +89,44 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_app);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //init firebase
         Authenticator = FirebaseAuth.getInstance();
-        user = FirebaseDatabase.getInstance().getReference().child("Users/"+Authenticator.getUid());
-       toolbar = findViewById(R.id.toolbar);
+        user = FirebaseDatabase.getInstance().getReference().child("Users/" + Authenticator.getUid());
+        //init Nav View and toggle button
+        toolbar = findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
+        nav_view = findViewById(R.id.nav_view);
+        View headerView = nav_view.getHeaderView(0);
         drawer = findViewById(R.id.drawerlayout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(MainApp.this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+
+        //init Searchbar Edit text
+        Search_txt = findViewById(R.id.Search_txt);
+        Search_loc_btn = findViewById(R.id.search_loc_btn);
+        Search_loc_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Search_txt.getText().toString().trim().isEmpty()) {
+                    Search_txt.requestFocus();
+                } else {
+                    searchAndShowLocation();
+                }
+            }
+        });
+
+
+        //init items in nav view for custom user
         profile = new ArrayList<>();
-        nav_view = findViewById(R.id.nav_view);
-        View headerView = nav_view.getHeaderView(0);
         nav_username = headerView.findViewById(R.id.nav_username_txt);
         phone = headerView.findViewById(R.id.nav_phone_txt);
         user_Image = headerView.findViewById(R.id.nav_view_image);
-        MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-        ArrayList<CardItem> items = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            CardItem a = new CardItem(R.drawable.ic_email_icon, "Mcdonalds", "KFC");
-            items.add(a);
-        }
 
-        recyclerView = findViewById(R.id.recyclerview);
-        recyclerView.setHasFixedSize(true);
-        recycler_LayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
-        card_Adapter = new RecyclerAdapter(items);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                LinearLayoutManager.HORIZONTAL);
-        recyclerView.addItemDecoration(dividerItemDecoration);
-        recyclerView.setLayoutManager(recycler_LayoutManager);
-        recyclerView.setAdapter(card_Adapter);
-
-
-        user_Image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openGallery();
-            }
-        });
-
-        user.addValueEventListener(new ValueEventListener() {
-            @Override
-            @SuppressWarnings("Constant Conditions")
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!(snapshot.getValue() == null)) {
-                    profile.add(snapshot.child("name").getValue().toString());
-                    profile.add(snapshot.child("age").getValue().toString());
-                    profile.add(snapshot.child("phoneNumber").getValue().toString());
-                    profile.add(snapshot.child("favourite_Restaurant").getValue().toString());
-                    nav_username.setText(snapshot.child("name").getValue().toString());
-                    phone.setText(snapshot.child("phoneNumber").getValue().toString());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-
-
+        //Set On Click Listener for the Navigation View Entirely
+        //Some items are yet to be implemented ones that require
+        //Backend Dev
         nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -169,9 +154,58 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
                     }
 
                 }
-
-
                 return false;
+            }
+        });
+
+
+        //init map fragment
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        //init RecyclerView and set it's LO Manager and Adapter
+        recyclerView = findViewById(R.id.recyclerview);
+        recyclerView.setHasFixedSize(true);
+        recycler_LayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
+        ArrayList<CardItem> items = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            CardItem a = new CardItem(R.drawable.ic_email_icon, "Mcdonalds", "KFC");
+            items.add(a);
+        }
+        card_Adapter = new RecyclerAdapter(items);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                LinearLayoutManager.HORIZONTAL);
+        recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.setLayoutManager(recycler_LayoutManager);
+        recyclerView.setAdapter(card_Adapter);
+
+        //on Click Listener for user image to change it whenever it is clicked
+        //caching is still needed for the profile picture
+        user_Image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openGallery();
+            }
+        });
+
+        //Read all stored data of user from Database and add them to profile ArrayList
+        user.addValueEventListener(new ValueEventListener() {
+            @Override
+            @SuppressWarnings("Constant Conditions")
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!(snapshot.getValue() == null)) {
+                    profile.add(snapshot.child("name").getValue().toString());
+                    profile.add(snapshot.child("age").getValue().toString());
+                    profile.add(snapshot.child("phoneNumber").getValue().toString());
+                    profile.add(snapshot.child("favourite_Restaurant").getValue().toString());
+                    nav_username.setText(snapshot.child("name").getValue().toString());
+                    phone.setText(snapshot.child("phoneNumber").getValue().toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
             }
         });
 
@@ -204,7 +238,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(MainApp.this,"Location Access is required for the app to run properly",Toast.LENGTH_LONG).show();
+            Toast.makeText(MainApp.this, "Location Access is required for the app to run properly", Toast.LENGTH_LONG).show();
             return;
         } else {
             map.setMyLocationEnabled(true);
@@ -219,16 +253,14 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
 
 
     private void requestLocation() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)&&
-                ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_COARSE_LOCATION)) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) &&
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
 
             showDialog("Permission Required", "For the App to work properly the Location is required");
 
-        }
+        } else {
 
-        else {
-
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, Location_Permission_Code);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, Location_Permission_Code);
         }
 
     }
@@ -247,7 +279,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ActivityCompat.requestPermissions(MainApp.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, Location_Permission_Code);
+                ActivityCompat.requestPermissions(MainApp.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, Location_Permission_Code);
             }
         });
         AlertDialog alert = builder.create();
@@ -258,7 +290,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == Location_Permission_Code) {
-            if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(MainApp.this, "Permission Granted", Toast.LENGTH_LONG).show();
             }
         } else {
@@ -266,35 +298,58 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         }
     }
 
-    private void moveCamera(LatLng latLng,float Zoom){
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,Zoom));
+    private void moveCamera(LatLng latLng, float Zoom) {
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, Zoom));
     }
 
     private void getLocation() {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainApp.this);
-       try {
-               if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                       ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-               }
-               Task Location = mFusedLocationProviderClient.getLastLocation();
-               Location.addOnCompleteListener(new OnCompleteListener() {
-                   @Override
-                   public void onComplete(@NonNull Task task) {
-                       if (task.isSuccessful()) {
-                           Location CurrentLocation =(Location)task.getResult();
-                           LatLng mylocation=new LatLng(CurrentLocation.getLatitude(),CurrentLocation.getLongitude());
-                           moveCamera(mylocation,15f);
+        try {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            Task Location = mFusedLocationProviderClient.getLastLocation();
+            Location.addOnCompleteListener(new OnCompleteListener() {
+                @Override
+                public void onComplete(@NonNull Task task) {
+                    if (task.isSuccessful()) {
+                        Location CurrentLocation = (Location) task.getResult();
+                        LatLng mylocation = new LatLng(CurrentLocation.getLatitude(), CurrentLocation.getLongitude());
+                        moveCamera(mylocation, 15f);
 
-                       }
-                       else{
-                           Toast.makeText(MainApp.this, "Not able to access current location", Toast.LENGTH_SHORT).show();
-                       }
-                   }
-               });
-       }catch(SecurityException e){
-           Toast.makeText(MainApp.this,"Security exception"+e.getLocalizedMessage(),Toast.LENGTH_LONG).show();
-       }
+                    } else {
+                        Toast.makeText(MainApp.this, "Not able to access current location", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } catch (SecurityException e) {
+            Toast.makeText(MainApp.this, "Security exception" + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    private void searchAndShowLocation() {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Task Location = mFusedLocationProviderClient.getLastLocation();
+        Location.addOnCompleteListener(new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if (task.isSuccessful()) {
+                    Location CurrentLocation = (Location) task.getResult();
+                    LocationURL ="https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
+                            "?location"+ CurrentLocation.getLatitude() + "," + CurrentLocation.getLongitude()
+                            + "&radius5000" + "&type=ATM" + "&sensor=true" + "&key=" + getResources().getString(R.string.map_key);
+
+
+                }
+
+            }
+        });
 
     }
 }
