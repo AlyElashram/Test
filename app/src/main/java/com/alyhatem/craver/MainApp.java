@@ -38,6 +38,11 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.LocationServices;
@@ -58,6 +63,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +96,8 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_app);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //request location
+            requestLocation();
         //init firebase
         Authenticator = FirebaseAuth.getInstance();
         user = FirebaseDatabase.getInstance().getReference().child("Users/" + Authenticator.getUid());
@@ -153,6 +162,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
                         startActivity(new Intent(MainApp.this, change_password.class));
                     }
 
+
                 }
                 return false;
             }
@@ -209,6 +219,28 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
+        //String Request Trial using volley
+        String url = "https://api.exchangeratesapi.io/latest";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                      Log.d("Value is: ",response+" ay haga");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Handle error
+                    }
+                });
+
+
+
+
+
+
+
     }
 
     private void openGallery() {
@@ -238,8 +270,8 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(MainApp.this, "Location Access is required for the app to run properly", Toast.LENGTH_LONG).show();
-            return;
+
+            requestLocation();
         } else {
             map.setMyLocationEnabled(true);
             getLocation();
@@ -252,18 +284,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     }
 
 
-    private void requestLocation() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) &&
-                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
 
-            showDialog("Permission Required", "For the App to work properly the Location is required");
-
-        } else {
-
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, Location_Permission_Code);
-        }
-
-    }
 
     private void showDialog(String Title, String Message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainApp.this);
@@ -291,10 +312,11 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == Location_Permission_Code) {
             if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(MainApp.this, "Permission Granted", Toast.LENGTH_LONG).show();
+                Log.d("Permission is: ","Permission Granted");
+                getLocation();
             }
         } else {
-            Toast.makeText(MainApp.this, "Permission Denied", Toast.LENGTH_LONG).show();
+            Log.d("Permission is: ","Permission Denied");
         }
     }
 
@@ -309,6 +331,7 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
                     ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
+            map.setMyLocationEnabled(true);
             Task Location = mFusedLocationProviderClient.getLastLocation();
             Location.addOnCompleteListener(new OnCompleteListener() {
                 @Override
@@ -350,6 +373,18 @@ public class MainApp extends AppCompatActivity implements OnMapReadyCallback {
 
             }
         });
+
+    }
+    private void requestLocation() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) &&
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+            showDialog("Permission Required", "For the App to work properly the Location is required");
+
+        } else {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, Location_Permission_Code);
+        }
 
     }
 }

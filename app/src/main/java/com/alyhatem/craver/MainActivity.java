@@ -3,7 +3,9 @@
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     Button SignInEmail_btn, SignInGuest_btn,Register_btn;
     public static EditText Email_txt, Password_txt;
     FirebaseAuth Authenticator;
+    private int Location_Permission_Code = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         SignInGuest_btn = findViewById(R.id.SignInGuest_btn);
         Authenticator = FirebaseAuth.getInstance();
 
+        requestLocation();
 
         if (Authenticator.getCurrentUser() == null) {
 
@@ -166,5 +170,18 @@ public class MainActivity extends AppCompatActivity {
         }catch(NullPointerException e){
             return false;
         }
+    }
+
+    private void requestLocation() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) &&
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+            showDialog("Permission Required", "For the App to work properly the Location is required");
+
+        } else {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, Location_Permission_Code);
+        }
+
     }
 }

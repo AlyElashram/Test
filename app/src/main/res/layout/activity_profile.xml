@@ -8,6 +8,7 @@
     tools:context=".Profile">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="#FFFFFF"
@@ -16,15 +17,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.499">
+        app:layout_constraintTop_toBottomOf="@+id/cardView5"
+        app:layout_constraintVertical_bias="0.174">
 
         <EditText
             android:id="@+id/Fav_txt"
             android:layout_width="260dp"
             android:layout_height="62dp"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
             android:background="#00FFFFFF"
             android:drawableStart="@drawable/ic_baseline_account_circle_24"
             android:drawablePadding="10dp"
@@ -38,6 +37,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="#FFFFFF"
@@ -70,6 +70,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="#FFFFFF"
@@ -78,15 +79,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.34">
+        app:layout_constraintTop_toBottomOf="@+id/cardView6"
+        app:layout_constraintVertical_bias="0.136">
 
         <EditText
             android:id="@+id/Age_txt"
             android:layout_width="260dp"
             android:layout_height="62dp"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
             android:background="#00FFFFFF"
             android:drawableStart="@drawable/ic_baseline_account_circle_24"
             android:drawablePadding="10dp"
@@ -107,20 +106,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.66">
+        app:layout_constraintTop_toBottomOf="@+id/cardView4">
 
         <Button
             android:id="@+id/SetProfile_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#EB6161"
+            android:background="#3A2F73"
             android:fontFamily="@font/sfregular"
             android:text="Register Profile"
             android:textColor="#FFFFFF" />
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="#FFFFFF"
@@ -129,15 +128,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.19">
+        app:layout_constraintTop_toBottomOf="@+id/cardView7"
+        app:layout_constraintVertical_bias="0.085">
 
         <EditText
             android:id="@+id/Phone_txt"
             android:layout_width="260dp"
             android:layout_height="62dp"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
             android:background="#00FFFFFF"
             android:drawableStart="@drawable/ic_baseline_account_circle_24"
             android:drawablePadding="10dp"
@@ -149,4 +146,5 @@
             android:textColor="#463A84"
             android:textColorHint="#463A84" />
     </androidx.cardview.widget.CardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
